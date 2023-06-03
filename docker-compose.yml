@@ -1,0 +1,15 @@
+version: '0.0.1'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/code
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=true # Para que el contenedor se reincie al hacer un cambio
+
+  redis:
+    image: "redis:alpine"
