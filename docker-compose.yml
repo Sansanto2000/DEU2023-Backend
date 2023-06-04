@@ -6,10 +6,33 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - .:/code
+      - ./app:/code
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=true # Para que el contenedor se reincie al hacer un cambio
 
-  redis:
-    image: "redis:alpine"
+  postgres:
+    image: postgres:latest
+    #restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - './postgres-volume:/var/lib/postgresql/data'
+      - ./init-postgre.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    environment:
+      - DATABASE_HOST=127.0.0.1
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - '80:80'
+    volumes:
+      - './pgadmin-volume:/var/lib/pgadmin'
+    depends_on:
+      - postgres
+  
