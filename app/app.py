@@ -1,21 +1,13 @@
-from flask import Flask
+from init import create_app
+from models import db
+from flask_migrate import Migrate
 
-from config import config  
+app = create_app()
+# bootstrap database migrate commands
+db.init_app(app)
+migrate = Migrate(app, db)
 
-# Routes
-from routes import Session
-
-app = Flask(__name__)
-
-def page_not_found(error):
-    return "<h1>Not found page</h1>", 404
-
-if(__name__=='app'):#if(__name__=='__main__'):
-    app.config.from_object(config['development'])
+print("NAME = ", __name__)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
     
-    # Blueprints
-    app.register_blueprint(Session.api, url_prefix='/api/session')
-    
-    # Error handlers
-    app.register_error_handler(404, page_not_found)
-    app.run()
