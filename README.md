@@ -11,16 +11,23 @@ https://testdriven.io/blog/dockerizing-flask-with-postgres-gunicorn-and-nginx/
 ```
 docker-compose down -v
 ```
-### Construir imagen
+### Construir imagen y Ejecutar
 ```
 docker-compose up -d --build
 ```
+Checkear ejecucion en `http://localhost:5001`
 
-### Ejecutar
+### Reiniciar DB
 ```
 docker-compose exec web python manage.py create_db
 ```
-Checkear ejecucion en `http://localhost:5001`
+
+### Inicializar DB
+Se puede instanciar la DB con varios elementos utilizando el comando:
+```
+docker-compose exec web python manage.py seed_db
+```
+
 
 ## Comandos (Prod)
 
@@ -28,18 +35,29 @@ Checkear ejecucion en `http://localhost:5001`
 ```
 docker-compose -f docker-compose.prod.yml down -v
 ```
-### Construir imagen
+### Construir imagen y Ejecutar
 ```
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
+Checkear ejecucion en `http://localhost:1337`
 
-### Ejecutar
+### Reiniciar DB
 ```
 docker-compose -f docker-compose.prod.yml exec web python manage.py create_db
 ```
-Checkear ejecucion en `http://localhost:1337`
 
 
-## Visualizacion de datos
+## Visualizacion de los datos de la DB
 
-Los datos de la DB se visualizan desde pgadmin, accesible desde `localhost:80`.
+Los datos de la DB se pueden checkear haciendo uso del siguiente comando:
+```
+docker-compose exec db psql --username=hello_flask --dbname=hello_flask_dev
+```
+Esto te dara una consola para interactuar con la DB.
+
+Comandos utiles:
+- listar DBs: `\l`
+- conectar con DBs de app: `\c hello_flask_dev`
+- (una vez conectado) listar tablas: `\dt`
+- (una vez conectado) listar elementos de tabla: `select * from {nombre_tabla};` Ejemplo: `select * from users;`
+- (una vez conectado) desconectar consola: `\q`
