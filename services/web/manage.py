@@ -26,8 +26,11 @@ def seed_db():
                         gender=User.Gender.FEMALE, height=1.73, age=27))
     
     # Creacion de grupos
-    db.session.add(Group(name='ciclismo rapido', privacy=Group.Privacy.PUBLIC, description='Grupo centrado en la aceleracion del ritmo, que nadie te alcance.'))
-    db.session.add(Group(name='ciclismo alter', privacy=Group.Privacy.PRIVATE, description='Ciclismo alternativo, conoce todo el potencial de la bicicleta.', difficulty='PAZ'))
+    db.session.add(Group(name='ciclismo rapido', privacy=Group.Privacy.PUBLIC, 
+                         description='Grupo centrado en la aceleracion del ritmo, que nadie te alcance.'))
+    db.session.add(Group(name='ciclismo alter', privacy=Group.Privacy.PRIVATE, 
+                         description='Ciclismo alternativo, conoce todo el potencial de la bicicleta.', 
+                         difficulty=Group.Difficulty.HARD))
     
     db.session.commit()
 
