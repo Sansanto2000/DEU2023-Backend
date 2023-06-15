@@ -14,7 +14,10 @@ def create_db():
 
 @cli.command("seed_db")
 def seed_db():
-    db.session.add(User(email="michael@mherman.org"))
+    db.session.add(User(username='carlos', password='zantana', gender=User.Gender.MALE, age=75))
+    db.session.add(User(username='gustavo', password='cerati', gender=User.Gender.MALE, height=1.86, age=55))
+    db.session.add(User(username='vanilla', password='ice', gender=User.Gender.MALE, age=55))
+    db.session.add(User(username='dua', password='lipa', gender=User.Gender.FEMALE, height=1.73, age=27))
     db.session.commit()
 
 
