@@ -9,12 +9,14 @@ from flask import (
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 
+
 app = Flask(__name__)
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
 
 from project.routes.auth import auth_api
 app.register_blueprint(auth_api, url_prefix='/auth')
+
 
 @app.route("/")
 def hello_world():
