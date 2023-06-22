@@ -6,14 +6,11 @@ from project.models.User import User
 auth_api = Blueprint('auth', __name__)
 
 
-@auth_api.route('/login')
+@auth_api.route('/login', methods=['GET'])
 def login():
-    data = request.get_json()
-    if not data:
-        return jsonify(error='Missing JSON data'), 400
     # Recepcion de campos obligatorios
-    username = data.get('username')
-    password = data.get('password')
+    username = request.args.get('username', type=str)
+    password = request.args.get('password', type=str)
     if not username or not password:
         return jsonify(error='Missing username or password'), 400
 
