@@ -20,9 +20,11 @@ class Group(db.Model):
     privacy: Privacy = db.Column(db.Enum(Privacy), nullable=False)
     description: str = db.Column(db.String(512), nullable=True)
     difficulty: Difficulty = db.Column(db.Enum(Difficulty), nullable=True)
+    capacity: int = db.Column(db.Integer, nullable=True)
 
-    def __init__(self, name: str, privacy: Privacy, description: str = None, difficulty: Difficulty = None):
+    def __init__(self, name: str, privacy: Privacy, description: str = None, difficulty: Difficulty = None, capacity: int = None):
         self.name = name
         self.privacy = privacy
         self.description = description
         self.difficulty = difficulty
+        self.capacity = capacity

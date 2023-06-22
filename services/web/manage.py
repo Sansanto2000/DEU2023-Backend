@@ -31,6 +31,10 @@ def seed_db():
         Group(name='ciclismo rapido', privacy=Group.Privacy.PUBLIC, description='Grupo centrado en la aceleracion del ritmo, que nadie te alcance.'))
     db.session.add(
         Group(name='ciclismo alter', privacy=Group.Privacy.PRIVATE, description='Ciclismo alternativo, conoce todo el potencial de la bicicleta.', difficulty=Group.Difficulty.HARD))
+    db.session.add(
+        Group(name='ciclismo hardcore', privacy=Group.Privacy.PUBLIC, description='Una vida, una bici, un destino.', difficulty=Group.Difficulty.HARD, capacity=10))
+    db.session.add(
+        Group(name='grupo super exclusivo', privacy=Group.Privacy.PRIVATE, description='El grupo mas exclusivo de todos.', difficulty=Group.Difficulty.HARD, capacity=1))
 
     db.session.commit()
 
