@@ -7,27 +7,18 @@ https://testdriven.io/blog/dockerizing-flask-with-postgres-gunicorn-and-nginx/
 
 ## Comandos (Dev)
 
-### Tirar abajo contenedores
+Tirar abajo contenedores:
 ```
 docker-compose down -v
 ```
-### Construir imagen y Ejecutar
+Construir imagen y Ejecutar:
 ```
 docker-compose up -d --build
 ```
+
 Checkear ejecucion en `http://localhost:5001`
 
-### Reiniciar DB
-```
-docker-compose exec web python manage.py create_db
-```
-
-### Inicializar DB
-Se puede instanciar la DB con varios elementos utilizando el comando:
-```
-docker-compose exec web python manage.py seed_db
-```
-
+En DEV la base de datos se crea e inicializa de forma automatica con cada ejecución.
 
 ## Comandos (Prod)
 
