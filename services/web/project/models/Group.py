@@ -25,10 +25,21 @@ class Group(db.Model):
     capacity: int = db.Column(db.Integer, nullable=True)
     schedules = relationship("Schedule", cascade="all, delete-orphan")
 
-    def __init__(self, name: str, privacy: Privacy, description: str = None, difficulty: Difficulty = None, capacity: int = None, schedules = None):
+    def __init__(self, name: str, privacy: Privacy, description: str = None, difficulty: Difficulty = None, capacity: int = None, schedules = []):
         self.name = name
         self.privacy = privacy
         self.description = description
         self.difficulty = difficulty
         self.capacity = capacity
         self.schedules = schedules
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'privacy': self.privacy.value,
+            'description': self.description,
+            'difficulty': self.difficulty.value if self.difficulty else None,
+            'capacity': self.capacity,
+            'schedules': [schedule.to_dict() for schedule in self.schedules]
+        }

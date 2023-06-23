@@ -28,6 +28,14 @@ class Schedule(db.Model):
         self.starttime = starttime
         self.endingtime = endingtime
         self.training = training
-        print(f"starttime = {type(starttime)}")
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'day': self.day.value,
+            'starttime': str(self.starttime),
+            'endingtime': str(self.endingtime),
+            'training': self.training
+        }
     
     

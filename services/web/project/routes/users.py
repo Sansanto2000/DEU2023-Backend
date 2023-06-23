@@ -10,7 +10,7 @@ def get(user_id: int):
     # Comprobacion existencia del usuario en la DB
     user = User.query.filter_by(id=user_id).first()
     if not user:
-        return jsonify(error='There is no user for the given id'), 404
+        return jsonify(error='No user for the given id'), 404
     
     return jsonify(user.to_dict()), 200
 
