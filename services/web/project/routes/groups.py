@@ -46,8 +46,8 @@ def check_schedul_dict(schema:dict):
         return False, 'Invalid endingtime. Valid format is: %H:%M:%S'
 
     training = schema['training']
-    if not training:
-        return False, 'training attribute cannot be null'
+    # if not training:
+    #     return False, 'training attribute cannot be null'
 
     return True, Schedule(day=day, starttime=starttime, endingtime=endingtime, training=training)
     
@@ -100,23 +100,21 @@ def create():
         if not isinstance(capacity_str, int):
             return jsonify(error='Invalid capacity. Capacity must be an integer value.'), 400
         capacity = int(capacity_str)
-    
     schedules_str = data['schedules']
     schedules = []
     if isinstance(schedules_str, list):
-        for schedul in schedules:
-            r1, r2 = check_schedul_dict(schedul)
+        for schedul_str in schedules_str:
+            r1, r2 = check_schedul_dict(schedul_str)
             if r1:
                 schedules.append(r2) 
             else:
                 return jsonify(error=f'Invalid schedules\'s item. {r2}'), 400               
     else:
         return jsonify(error='Invalid schedules. Schedules must be a list.'), 400
-    
     # Creacion del Grupo
     group = Group(name=name, privacy=privacy, description=description, difficulty=difficulty, capacity=capacity, schedules=schedules)
     
-    # Generacion y agregado del grupo en la DB
+    # Generacion y agregado del grupo y sus schedules en la DB
     db.session.add(group)
     db.session.commit()
 
