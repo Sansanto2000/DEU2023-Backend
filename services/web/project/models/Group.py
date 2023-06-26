@@ -43,7 +43,8 @@ class Group(db.Model):
             'description': self.description,
             'difficulty': self.difficulty.value if self.difficulty else None,
             'capacity': self.capacity,
-            'schedules': [schedule.to_dict() for schedule in self.schedules]
+            'schedules': [schedule.to_dict() for schedule in self.schedules],
+            'created_at': self.created_at
         }
     
     @staticmethod
