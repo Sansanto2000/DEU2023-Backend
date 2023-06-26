@@ -18,7 +18,33 @@ def get(group_id: int):
     
     return jsonify(group.to_dict()), 200
 
-def check_schedul_dict(schema:dict):
+@groups_api.route('/list', methods=['GET'])
+def getlist():
+    # Recepcion de parametros
+    params = request.args
+    
+    page_str = params.get("page")
+    try:
+        page: int = int(page_str)
+    except (ValueError, TypeError):
+        return jsonify(error='Invalid page. page must be an integer value.'), 400
+    
+    per_page_str = params.get("per_page")
+    try:
+        per_page: int = int(per_page_str)
+    except (ValueError, TypeError):
+        return jsonify(error='Invalid per_page. per_page must be an integer value.'), 400
+    
+    # Obtencion de todos los grupos de la DB
+    # groups = Group.query.all()
+    groups = Group.all_paginated(page=page, per_page=per_page)
+    
+    # if not group:
+    #     return jsonify(error='No group for the given id'), 404
+    
+    return jsonify([group.to_dict() for group in groups]), 200
+
+def check_schedul_dict(schema: dict):
     # Validacion de atributos recibidos
     day_str = schema['day']
     if not day_str:
@@ -100,6 +126,7 @@ def create():
         if not isinstance(capacity_str, int):
             return jsonify(error='Invalid capacity. Capacity must be an integer value.'), 400
         capacity = int(capacity_str)
+
     schedules_str = data['schedules']
     schedules = []
     if isinstance(schedules_str, list):

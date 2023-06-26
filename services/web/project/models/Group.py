@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 from project import db
@@ -24,6 +25,7 @@ class Group(db.Model):
     difficulty: Difficulty = db.Column(db.Enum(Difficulty), nullable=True)
     capacity: int = db.Column(db.Integer, nullable=True)
     schedules = relationship("Schedule", cascade="all, delete-orphan")
+    created_at: datetime = db.Column(db.Date, default=datetime.now())
 
     def __init__(self, name: str, privacy: Privacy, description: str = None, difficulty: Difficulty = None, capacity: int = None, schedules = []):
         self.name = name
@@ -43,3 +45,8 @@ class Group(db.Model):
             'capacity': self.capacity,
             'schedules': [schedule.to_dict() for schedule in self.schedules]
         }
+    
+    @staticmethod
+    def all_paginated(page=1, per_page=20):
+        return Group.query.order_by(Group.created_at.asc()).\
+            paginate(page=page, per_page=per_page, error_out=False)
