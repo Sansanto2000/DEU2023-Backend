@@ -1,6 +1,9 @@
 from enum import Enum
 
 from project import db
+from project.models.Group_User import groups_users
+
+from sqlalchemy.orm import relationship
 
 
 class User(db.Model):
@@ -23,6 +26,7 @@ class User(db.Model):
     weight: float = db.Column(db.Float, nullable=True)
     height: float = db.Column(db.Float, nullable=True)
     age: int = db.Column(db.Integer, nullable=True)
+    groups = relationship('Group', secondary='groups_users', back_populates='users')
 
     def __init__(self, username: str, password: str, role: Role, gender: Gender = None, weight: float = None, height: float = None, age: int = None):
         self.username = username
@@ -42,5 +46,12 @@ class User(db.Model):
             'gender': self.gender.value if self.gender else None,
             'weight': self.weight,
             'height': self.height,
-            'age': self.age
+            'age': self.age,
+            'groups': [group.to_dict_secondary() for group in self.groups]
+        }
+    
+    def to_dict_secondary(self):
+        return {
+            'id': self.id,
+            'username': self.username
         }

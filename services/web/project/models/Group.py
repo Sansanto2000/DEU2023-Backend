@@ -2,6 +2,8 @@ from datetime import datetime
 from enum import Enum
 
 from project import db
+from project.models.User import User
+from project.models.Group_User import groups_users
 
 from sqlalchemy.orm import relationship
 
@@ -26,6 +28,7 @@ class Group(db.Model):
     capacity: int = db.Column(db.Integer, nullable=True)
     schedules = relationship("Schedule", cascade="all, delete-orphan")
     created_at: datetime = db.Column(db.Date, default=datetime.now())
+    users = relationship('User', secondary='groups_users', back_populates='groups')
 
     def __init__(self, name: str, privacy: Privacy, description: str = None, difficulty: Difficulty = None, capacity: int = None, schedules = []):
         self.name = name
@@ -34,6 +37,7 @@ class Group(db.Model):
         self.difficulty = difficulty
         self.capacity = capacity
         self.schedules = schedules
+        
     
     def to_dict(self):
         return {
@@ -44,8 +48,19 @@ class Group(db.Model):
             'difficulty': self.difficulty.value if self.difficulty else None,
             'capacity': self.capacity,
             'schedules': [schedule.to_dict() for schedule in self.schedules],
-            'created_at': self.created_at
+            'created_at': self.created_at,
+            'users': [user.to_dict_secondary() for user in self.users]
         }
+        
+    def to_dict_secondary(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
+        
+    def add_user(self, user: User):
+        if user not in self.users:
+            self.users.append(user)
     
     @staticmethod
     def filter_paginated(page, per_page, privacy=None):
