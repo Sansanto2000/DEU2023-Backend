@@ -48,6 +48,9 @@ class Group(db.Model):
         }
     
     @staticmethod
-    def all_paginated(page=1, per_page=20):
-        return Group.query.order_by(Group.created_at.asc()).\
-            paginate(page=page, per_page=per_page, error_out=False)
+    def filter_paginated(page, per_page, privacy=None):
+        query = Group.query.order_by(Group.created_at.asc())
+        if privacy:
+            query = query.filter_by(privacy=privacy)
+        return query.paginate(page=page, per_page=per_page, error_out=False)
+

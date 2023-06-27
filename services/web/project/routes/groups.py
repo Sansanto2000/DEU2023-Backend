@@ -20,27 +20,40 @@ def get(group_id: int):
 
 @groups_api.route('/list', methods=['GET'])
 def getlist():
-    # Recepcion de parametros
+    # Recepcion de parametros (Todos son opcionales, page y per_page tienen valores por defecto de no asignarse)
     params = request.args
     
-    page_str = params.get("page")
+    page_str = params.get("page", default=1)
     try:
         page: int = int(page_str)
     except (ValueError, TypeError):
         return jsonify(error='Invalid page. page must be an integer value.'), 400
-    
-    per_page_str = params.get("per_page")
+
+    per_page_str = params.get("per_page", default=20) 
     try:
         per_page: int = int(per_page_str)
     except (ValueError, TypeError):
         return jsonify(error='Invalid per_page. per_page must be an integer value.'), 400
     
-    # Obtencion de todos los grupos de la DB
-    # groups = Group.query.all()
-    groups = Group.all_paginated(page=page, per_page=per_page)
+    # user_id_str = params.get("user_id") 
+    # user_id = None
+    # if user_id_str:
+    #     try:
+    #         user_id: int = int(user_id_str)
+    #     except (ValueError, TypeError):
+    #         return jsonify(error='Invalid user_id. user_id must be an integer value.'), 400
     
-    # if not group:
-    #     return jsonify(error='No group for the given id'), 404
+    privacy_str = params.get("privacy") 
+    privacy: Group.Privacy = None
+    if privacy_str:
+        try:
+            privacy = Group.Privacy(privacy_str)
+        except ValueError:
+            valid_privacies = [g.value for g in Group.Privacy]
+            return jsonify(error=f'Invalid privacy. Valid values are: {valid_privacies}'), 400
+    
+    # Obtencion de los grupos requeridos
+    groups = Group.filter_paginated(page=page, per_page=per_page, user_id=None, privacy=privacy)
     
     return jsonify([group.to_dict() for group in groups]), 200
 
