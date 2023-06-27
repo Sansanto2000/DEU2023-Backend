@@ -23,16 +23,22 @@ class Group(db.Model):
     id: str = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(128), nullable=False)
     privacy: Privacy = db.Column(db.Enum(Privacy), nullable=False)
+    teacher = db.relationship('User', back_populates='my_groups')
+    
     description: str = db.Column(db.String(512), nullable=True)
     difficulty: Difficulty = db.Column(db.Enum(Difficulty), nullable=True)
     capacity: int = db.Column(db.Integer, nullable=True)
     schedules = relationship("Schedule", cascade="all, delete-orphan")
     created_at: datetime = db.Column(db.Date, default=datetime.now())
     users = relationship('User', secondary='groups_users', back_populates='groups')
+    
+    # Claves Foraneas
+    teacher_id: str = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    def __init__(self, name: str, privacy: Privacy, description: str = None, difficulty: Difficulty = None, capacity: int = None, schedules = []):
+    def __init__(self, name: str, privacy: Privacy, teacher: User, description: str = None, difficulty: Difficulty = None, capacity: int = None, schedules = []):
         self.name = name
         self.privacy = privacy
+        self.teacher = teacher
         self.description = description
         self.difficulty = difficulty
         self.capacity = capacity
@@ -44,6 +50,7 @@ class Group(db.Model):
             'id': self.id,
             'name': self.name,
             'privacy': self.privacy.value,
+            'teacher': self.teacher.to_dict_secondary(),
             'description': self.description,
             'difficulty': self.difficulty.value if self.difficulty else None,
             'capacity': self.capacity,

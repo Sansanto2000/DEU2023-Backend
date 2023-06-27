@@ -27,6 +27,7 @@ class User(db.Model):
     height: float = db.Column(db.Float, nullable=True)
     age: int = db.Column(db.Integer, nullable=True)
     groups = relationship('Group', secondary='groups_users', back_populates='users')
+    my_groups = relationship("Group", back_populates='teacher')
 
     def __init__(self, username: str, password: str, role: Role, gender: Gender = None, weight: float = None, height: float = None, age: int = None):
         self.username = username
@@ -47,7 +48,8 @@ class User(db.Model):
             'weight': self.weight,
             'height': self.height,
             'age': self.age,
-            'groups': [group.to_dict_secondary() for group in self.groups]
+            'groups': [group.to_dict_secondary() for group in self.groups],
+            'my_groups': [group.to_dict_secondary() for group in self.my_groups]
         }
     
     def to_dict_secondary(self):
