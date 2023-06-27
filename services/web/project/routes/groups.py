@@ -35,14 +35,6 @@ def getlist():
     except (ValueError, TypeError):
         return jsonify(error='Invalid per_page. per_page must be an integer value.'), 400
     
-    # user_id_str = params.get("user_id") 
-    # user_id = None
-    # if user_id_str:
-    #     try:
-    #         user_id: int = int(user_id_str)
-    #     except (ValueError, TypeError):
-    #         return jsonify(error='Invalid user_id. user_id must be an integer value.'), 400
-    
     privacy_str = params.get("privacy") 
     privacy: Group.Privacy = None
     if privacy_str:
@@ -53,7 +45,7 @@ def getlist():
             return jsonify(error=f'Invalid privacy. Valid values are: {valid_privacies}'), 400
     
     # Obtencion de los grupos requeridos
-    groups = Group.filter_paginated(page=page, per_page=per_page, user_id=None, privacy=privacy)
+    groups = Group.filter_paginated(page=page, per_page=per_page, privacy=privacy)
     
     return jsonify([group.to_dict() for group in groups]), 200
 
@@ -152,7 +144,7 @@ def create():
     else:
         return jsonify(error='Invalid schedules. Schedules must be a list.'), 400
     # Creacion del Grupo
-    group = Group(name=name, privacy=privacy, description=description, difficulty=difficulty, capacity=capacity, schedules=schedules)
+    group = Group(name=name, privacy=privacy, teacher=teacher, description=description, difficulty=difficulty, capacity=capacity, schedules=schedules)
     
     # Generacion y agregado del grupo y sus schedules en la DB
     db.session.add(group)
