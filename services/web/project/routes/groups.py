@@ -152,6 +152,47 @@ def create():
 
     return jsonify(group.to_dict()), 200
 
+@groups_api.route('/addUser', methods=['PUT'])
+def addUser():
+    # Endpoint para enlazar un usuario con un grupo determinado
+    # Este espera 2 parametros de tipo int dentro de un parametro de tipo json:
+    # # group_id: int <- id del grupo objetivo de la nueva incorporacion
+    # # user_id: int <- id del usuario que se pretende incorporar al grupo
+    
+    # Obtencion de datos json
+    data = request.get_json()
+    if not data:
+        return jsonify(error='Missing JSON data'), 400
+    name: str = db.Column(db.String(128), nullable=False)
+
+    group_id_str = data['group_id']
+    if not group_id_str:
+        return jsonify(error='group_id attribute cannot be null'), 400
+    if not isinstance(group_id_str, int):
+        return jsonify(error='Invalid group_id. group_id must be an integer value.'), 400
+    group_id = int(group_id_str)
+    group: Group = Group.query.filter_by(id=group_id).first()
+    if not group:
+        return jsonify(error='Invalid group_id. The given id does not correspond to any group'), 400
+    
+    user_id_str = data['user_id']
+    if not user_id_str:
+        return jsonify(error='user_id attribute cannot be null'), 400
+    if not isinstance(user_id_str, int):
+        return jsonify(error='Invalid user_id. user_id must be an integer value.'), 400
+    user_id = int(user_id_str)
+    user: User = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify(error='Invalid user_id. The given id does not correspond to any user'), 400
+    
+    # Añadir usuario al grupo
+    group.add_user(user)
+    
+    # Subida de los cambios a la db
+    db.session.commit()
+
+    return '', 204
+
 # @groups_api.route('/<int:group_id>', methods=['DELETE'])
 # def delete(group_id: int):
 #     # Comprobacion de que el 
