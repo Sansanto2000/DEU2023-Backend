@@ -69,6 +69,13 @@ class Group(db.Model):
         if user not in self.users:
             self.users.append(user)
     
+    def remove_user(self, user: User):
+        print("OK 1")
+        if user in self.users:
+            print("OK 2")
+            self.users.remove(user)
+            print("OK 3")
+    
     @staticmethod
     def filter_paginated(page, per_page, privacy=None):
         query = Group.query.order_by(Group.created_at.asc())
