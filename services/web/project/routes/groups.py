@@ -152,8 +152,8 @@ def create():
 
     return jsonify(group.to_dict()), 200
 
-@groups_api.route('/addUser', methods=['PUT'])
-def addUser():
+@groups_api.route('/<int:group_id>/addUser', methods=['PUT'])
+def addUser(group_id: int):
     # Endpoint para enlazar un usuario con un grupo determinado
     # Este espera 2 parametros de tipo int dentro de un parametro de tipo json:
     # # group_id: int <- id del grupo objetivo de la nueva incorporacion
@@ -165,15 +165,10 @@ def addUser():
         return jsonify(error='Missing JSON data'), 400
     name: str = db.Column(db.String(128), nullable=False)
 
-    group_id_str = data['group_id']
-    if not group_id_str:
-        return jsonify(error='group_id attribute cannot be null'), 400
-    if not isinstance(group_id_str, int):
-        return jsonify(error='Invalid group_id. group_id must be an integer value.'), 400
-    group_id = int(group_id_str)
+    # Comprobacion de existencia del grupo
     group: Group = Group.query.filter_by(id=group_id).first()
     if not group:
-        return jsonify(error='Invalid group_id. The given id does not correspond to any group'), 400
+        return jsonify(error='No group for the given group_id'), 404
     
     user_id_str = data['user_id']
     if not user_id_str:
@@ -193,28 +188,23 @@ def addUser():
 
     return '', 204
 
-@groups_api.route('/removeUser', methods=['PUT'])
-def removeUser():
+@groups_api.route('/<int:group_id>/removeUser', methods=['PUT'])
+def removeUser(group_id: int):
     # Endpoint para desenlazar un usuario con un grupo determinado
     # Este espera 2 parametros de tipo int dentro de un parametro de tipo json:
     # # group_id: int <- id del grupo objetivo del desenlazado
     # # user_id: int <- id del usuario que se pretende quitar del grupo
+    
+    # Comprobacion de existencia del grupo
+    group: Group = Group.query.filter_by(id=group_id).first()
+    if not group:
+        return jsonify(error='No group for the given group_id'), 404
     
     # Obtencion de datos json
     data = request.get_json()
     if not data:
         return jsonify(error='Missing JSON data'), 400
     name: str = db.Column(db.String(128), nullable=False)
-
-    group_id_str = data['group_id']
-    if not group_id_str:
-        return jsonify(error='group_id attribute cannot be null'), 400
-    if not isinstance(group_id_str, int):
-        return jsonify(error='Invalid group_id. group_id must be an integer value.'), 400
-    group_id = int(group_id_str)
-    group: Group = Group.query.filter_by(id=group_id).first()
-    if not group:
-        return jsonify(error='Invalid group_id. The given id does not correspond to any group'), 400
     
     user_id_str = data['user_id']
     if not user_id_str:
@@ -234,9 +224,50 @@ def removeUser():
 
     return '', 204
 
-# @groups_api.route('/<int:group_id>', methods=['DELETE'])
-# def delete(group_id: int):
-#     # Comprobacion de que el 
+@groups_api.route('/<int:group_id>/delete', methods=['DELETE'])
+def delete(group_id: int):
+    # Endpoint para borrar un grupo
+    # El borrado solo lo puede realizar el profesor titular del respectivo grupo
+    # Este espera 2 parametros cada uno atravez de cierta via:
+    # - group_id: int <- Se espera mediante la url, hace referencia al id del grupo que se pretende borrar
+    # - teacher_id: int <- Se envia mediante json, hace referencia al id del usuario que pretende realizar el borrado
+    
+    # Comprobacion de existencia del grupo
+    group: Group = Group.query.filter_by(id=group_id).first()
+    if not group:
+        return jsonify(error='No group for the given group_id'), 404
+    
+    # Obtencion de datos json
+    data = request.get_json()
+    if not data:
+        return jsonify(error='Missing JSON data'), 400
+    name: str = db.Column(db.String(128), nullable=False)
+    
+    # Comprobacion de existencia y autoridad del usuario indicado
+    teacher_id_str = data['teacher_id']
+    if not teacher_id_str:
+        return jsonify(error='teacher_id attribute cannot be null'), 400
+    if not isinstance(teacher_id_str, int):
+        return jsonify(error='Invalid teacher_id. teacher_id must be an integer value.'), 400
+    teacher_id = int(teacher_id_str)
+    teacher: User = User.query.filter_by(id=teacher_id).first()
+    if not teacher:
+        return jsonify(error='Invalid teacher_id. The given id does not correspond to any teacher'), 400
+    if not teacher:
+        return jsonify(error='No user for the given teacher_id'), 404
+    elif teacher.role != User.Role.TEACHER:
+        return jsonify(error='This user is not a teacher, therefore she cannot delete groups'), 404
+    elif group.teacher != teacher:
+        return jsonify(error='This user is not a teacher of the indicated group, therefore she cannot delete it.'), 404
+    
+    # Borrar grupo de la DB
+    db.session.delete(group)
+    
+    # Subida de los cambios a la db
+    db.session.commit()
+    
+    return jsonify(group.to_dict()), 204
+
 #     # Comprobacion existencia del usuario en la DB
 #     group = Group.query.filter_by(id=group_id).first()
 #     if not group:
