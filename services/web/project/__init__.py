@@ -28,6 +28,9 @@ app.register_blueprint(users_api, url_prefix='/users')
 from project.routes.groups import groups_api
 app.register_blueprint(groups_api, url_prefix='/groups')
 
+from project.routes.trainings import trainings_api
+app.register_blueprint(trainings_api, url_prefix='/trainings')
+
 
 
 @app.route("/")
