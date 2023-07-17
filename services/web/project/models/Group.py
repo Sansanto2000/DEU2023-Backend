@@ -30,7 +30,6 @@ class Group(db.Model):
     difficulty: Difficulty = db.Column(db.Enum(Difficulty), nullable=True)
     capacity: int = db.Column(db.Integer, nullable=True)
     
-    # schedules = relationship("Schedule", back_populates='schedule', cascade="all, delete-orphan")
     schedules = relationship("Schedule", cascade="all, delete-orphan")
     
     created_at: datetime = db.Column(db.Date, default=datetime.now())
