@@ -2,7 +2,6 @@ from enum import Enum
 
 from project import db
 
-
 class Schedule(db.Model):
     __tablename__ = "schedules"
 
@@ -19,15 +18,21 @@ class Schedule(db.Model):
     day: Day = db.Column(db.Enum(Day), nullable=False)
     starttime = db.Column(db.Time, nullable=False)
     endingtime = db.Column(db.Time, nullable=False)
-    training: str = db.Column(db.String, nullable=True)
-    # Claves foraneas
-    _group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
+    
+    # Llave foranea para que un grupo conosca sus schedules
+    schedule_id: str = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
+    
+    # A cada Schedule le corresponde un Training
+    # training_id = db.Column(db.Integer, db.ForeignKey('trainings.id'), nullable=False)
+    # training = db.relationship("Training", uselist=False, back_populates="schedule", cascade="all, delete-orphan", single_parent=True)
+    
     
     def __init__(self, day: Day, starttime, endingtime, training = None):
+    #def __init__(self, day: Day, starttime, endingtime):
         self.day = day
         self.starttime = starttime
         self.endingtime = endingtime
-        self.training = training
+        #self.training = training
     
     def to_dict(self):
         return {
@@ -35,7 +40,7 @@ class Schedule(db.Model):
             'day': self.day.value,
             'starttime': str(self.starttime),
             'endingtime': str(self.endingtime),
-            'training': self.training
+            #'training': self.training
         }
     
     

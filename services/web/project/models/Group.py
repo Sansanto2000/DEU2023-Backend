@@ -23,13 +23,18 @@ class Group(db.Model):
     id: str = db.Column(db.Integer, primary_key=True)
     name: str = db.Column(db.String(128), nullable=False)
     privacy: Privacy = db.Column(db.Enum(Privacy), nullable=False)
+    
     teacher = db.relationship('User', back_populates='my_groups')
     
     description: str = db.Column(db.String(512), nullable=True)
     difficulty: Difficulty = db.Column(db.Enum(Difficulty), nullable=True)
     capacity: int = db.Column(db.Integer, nullable=True)
+    
+    # schedules = relationship("Schedule", back_populates='schedule', cascade="all, delete-orphan")
     schedules = relationship("Schedule", cascade="all, delete-orphan")
+    
     created_at: datetime = db.Column(db.Date, default=datetime.now())
+    
     users = relationship('User', secondary='groups_users', back_populates='groups')
     
     # Claves Foraneas
