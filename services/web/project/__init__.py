@@ -31,6 +31,9 @@ app.register_blueprint(groups_api, url_prefix='/groups')
 from project.routes.trainings import trainings_api
 app.register_blueprint(trainings_api, url_prefix='/trainings')
 
+from project.routes.schedules import schedules_api
+app.register_blueprint(schedules_api, url_prefix='/schedules')
+
 
 
 @app.route("/")
