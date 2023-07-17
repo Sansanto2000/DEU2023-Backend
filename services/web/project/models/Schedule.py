@@ -1,6 +1,7 @@
 from enum import Enum
 
 from project import db
+from project.models.Training import Training
 
 class Schedule(db.Model):
     __tablename__ = "schedules"
@@ -23,8 +24,9 @@ class Schedule(db.Model):
     schedule_id: str = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     
     # A cada Schedule le corresponde un Training
-    # training_id = db.Column(db.Integer, db.ForeignKey('trainings.id'), nullable=False)
-    # training = db.relationship("Training", uselist=False, back_populates="schedule", cascade="all, delete-orphan", single_parent=True)
+    training_id = db.Column(db.Integer, db.ForeignKey('trainings.id'), nullable=True)
+    training = db.relationship(Training, uselist=False, cascade="all, delete-orphan", single_parent=True)
+    #training = db.relationship("Training", uselist=False, back_populates="schedule", cascade="all, delete-orphan", single_parent=True)
     
     
     def __init__(self, day: Day, starttime, endingtime, training = None):
