@@ -24,17 +24,16 @@ class Schedule(db.Model):
     schedule_id: str = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     
     # A cada Schedule le corresponde un Training
+    #training = relationship('User', secondary='groups_users', back_populates='groups')
     training_id = db.Column(db.Integer, db.ForeignKey('trainings.id'), nullable=True)
-    training = db.relationship(Training, uselist=False, cascade="all, delete-orphan", single_parent=True)
-    #training = db.relationship("Training", uselist=False, back_populates="schedule", cascade="all, delete-orphan", single_parent=True)
-    
+    training = db.relationship(Training, uselist=False)
     
     def __init__(self, day: Day, starttime, endingtime, training = None):
     #def __init__(self, day: Day, starttime, endingtime):
         self.day = day
         self.starttime = starttime
         self.endingtime = endingtime
-        #self.training = training
+        self.training = training
     
     def to_dict(self):
         return {
@@ -42,7 +41,7 @@ class Schedule(db.Model):
             'day': self.day.value,
             'starttime': str(self.starttime),
             'endingtime': str(self.endingtime),
-            #'training': self.training
+            'training_id': self.training_id
         }
     
     
