@@ -1,5 +1,5 @@
 from project import db
-# from project.models.Schedule import Schedule
+from project.models.Exercise import Exercise
 # Schedule
 
 class Training(db.Model):
@@ -9,16 +9,25 @@ class Training(db.Model):
     name: str = db.Column(db.String(128), nullable=False)
     description: str = db.Column(db.String(512), nullable=True)
     
-    # schedule_id = db.Column(db.Integer, db.ForeignKey('schedules.id'), nullable=True) #Definición de clave foranea 
-    # schedule = db.relationship('Schedule', back_populates="training", single_parent=True, cascade="all,delete-orphan")
+    exercises = db.relationship("Exercise", cascade="all, delete-orphan")
 
-    def __init__(self, name, description):
+    def __init__(self, name: str, description: str, exercises = []):
         self.name = name
         self.description = description
+        self.exercises = exercises
     
     def to_dict(self):
         return {
             'id': self.id,
             'name': self.name,
-            'description': self.description
+            'description': self.description,
+            'exercises': [exercise.to_dict() for exercise in self.exercises],
         }
+        
+    def add_exercise(self, exercise: Exercise):
+        if exercise not in self.exercises:
+            self.exercises.append(exercise)
+    
+    def remove_exercise(self, exercise: Exercise):
+        if exercise in self.exercises:
+            self.exercises.remove(exercise)

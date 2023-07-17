@@ -10,8 +10,8 @@ class Exercise(db.Model):
     heart_rate: float = db.Column(db.Float, nullable=True)
     duration: float = db.Column(db.Float, nullable=True)
     
-    # exercises: Day = db.Column(db.Enum(Day), nullable=False)
-    # schedules = relationship("Schedule", cascade="all, delete-orphan")
+    # Claves Foranea para que cada entrenamiento sepa que ejercicios le corresponden
+    training_id: str = db.Column(db.Integer, db.ForeignKey('trainings.id'), nullable=True)
     
     def __init__(self, name: str, description: str, speed: float, heart_rate: float, duration: float):
         self.name = name
