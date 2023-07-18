@@ -276,3 +276,107 @@ def delete(group_id: int):
 #         return jsonify(error='No group for the given id'), 404
     
 #     return jsonify(group.to_dict()), 200
+
+@groups_api.route('/<int:group_id>/addSchedule', methods=['PUT'])
+def addSchedule(group_id: int):
+    # Endpoint para enlazar un schedule con un grupo determinado
+    # Este espera 3 parametros de tipo int, uno via url y dos via json:
+    # # group_id: int <- id del grupo objetivo de la nueva incorporacion
+    # # teacher_id: int <- hace referencia al id del usuario que pretende realizar el borrado
+    # # schedule: dict <- datos del schedule que se pretende incorporar al grupo
+    # # # day: enum <- MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY'
+    # # # starttime: datatime, // Format %H:%M:%S
+    # # # endingtime: datatime, // Format %H:%M:%S
+    # # # training_id: int // (Optional) Valor id de training, sino se autoasigna null
+    
+    # Comprobacion de existencia del grupo
+    group: Group = Group.query.filter_by(id=group_id).first()
+    if not group:
+        return jsonify(error='No group for the given group_id'), 404
+    
+    # Obtencion de datos json
+    data = request.get_json()
+    if not data:
+        return jsonify(error='Missing JSON data'), 400
+    
+    teacher_id_str = data['teacher_id']
+    if not teacher_id_str:
+        return jsonify(error='teacher_id attribute cannot be null'), 400
+    if not isinstance(teacher_id_str, int):
+        return jsonify(error='Invalid teacher_id. teacher_id must be an integer value.'), 400
+    teacher_id = int(teacher_id_str)
+    teacher: User = User.query.filter_by(id=teacher_id, role=User.Role.TEACHER).first()
+    if not teacher:
+        return jsonify(error='Invalid teacher_id. The given id does not correspond to any teacher'), 400
+    elif group.teacher_id != teacher_id:
+        return jsonify(error='Invalid teacher_id. The given teacher_id does not correspond to the teacher of the group in question'), 400
+    
+    schedule_dict = data['schedule']
+    schedule = None
+    if isinstance(schedule_dict, dict):
+        r1, r2 = check_schedul_dict(schedule_dict)
+        if r1:
+            schedule = r2
+        else:
+            return jsonify(error=f'Invalid schedule\'s item. {r2}'), 400               
+    else:
+        return jsonify(error='Invalid schedules. Schedules must be a dict.'), 400
+    
+    # Añadir Scheduele al grupo
+    group.add_schedule(schedule=schedule)
+    
+    # Subida de los cambios a la db
+    db.session.commit()
+
+    return jsonify(schedule.to_dict()), 200
+
+@groups_api.route('/<int:group_id>/removeSchedule', methods=['PUT'])
+def removeSchedule(group_id: int):
+    # Endpoint para desenlazar un usuario con un grupo determinado
+    # Este espera 3 parametros de tipo int, uno en la url y dos en json:
+    # # group_id: int <- id del grupo objetivo del desenlazado
+    # # teacher_id: int <- id del usuario profesor del del grupo
+    # # schedule_id: int <- id del Schedule que se pretende quitar del grupo
+    
+    # Comprobacion de existencia del grupo
+    group: Group = Group.query.filter_by(id=group_id).first()
+    if not group:
+        return jsonify(error='No group for the given group_id'), 404
+    
+    # Obtencion de datos json
+    data = request.get_json()
+    if not data:
+        return jsonify(error='Missing JSON data'), 400
+    
+    teacher_id_str = data['teacher_id']
+    if not teacher_id_str:
+        return jsonify(error='teacher_id attribute cannot be null'), 400
+    if not isinstance(teacher_id_str, int):
+        return jsonify(error='Invalid teacher_id. teacher_id must be an integer value.'), 400
+    teacher_id = int(teacher_id_str)
+    teacher: User = User.query.filter_by(id=teacher_id, role=User.Role.TEACHER).first()
+    if not teacher:
+        return jsonify(error='Invalid teacher_id. The given id does not correspond to any teacher'), 400
+    elif group.teacher_id != teacher_id:
+        return jsonify(error='Invalid teacher_id. The given teacher_id does not correspond to the teacher of the group in question'), 400
+    
+    schedule_id_str = data['schedule_id']
+    if not schedule_id_str:
+        return jsonify(error='schedule_id attribute cannot be null'), 400
+    if not isinstance(schedule_id_str, int):
+        return jsonify(error='Invalid schedule_id. schedule_id must be an integer value.'), 400
+    schedule_id = int(schedule_id_str)
+    schedule: Schedule = Schedule.query.filter_by(id=schedule_id).first()
+    if not schedule:
+        return jsonify(error='Invalid schedule_id. The given id does not correspond to any schedule'), 400
+    elif not schedule in group.schedules:
+        return jsonify(error='Invalid schedule_id. The given id does not correspond to any schedule of the group'), 400
+            
+    # Quitar Schedule del grupo y borrar Schedule de la DB
+    group.remove_schedule(schedule)
+    db.session.delete(schedule)
+    
+    # Subida de los cambios a la db
+    db.session.commit()
+
+    return '', 204

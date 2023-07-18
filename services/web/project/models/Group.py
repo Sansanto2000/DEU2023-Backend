@@ -3,6 +3,7 @@ from enum import Enum
 
 from project import db
 from project.models.User import User
+from project.models.Schedule import Schedule
 from project.models.Group_User import groups_users
 
 from sqlalchemy.orm import relationship
@@ -76,6 +77,14 @@ class Group(db.Model):
     def remove_user(self, user: User):
         if user in self.users:
             self.users.remove(user)
+            
+    def add_schedule(self, schedule: Schedule):
+        if schedule not in self.schedules:
+            self.schedules.append(schedule)
+    
+    def remove_schedule(self, schedule: Schedule):
+        if schedule in self.schedules:
+            self.schedules.remove(schedule)
     
     @staticmethod
     def filter_paginated(page, per_page, privacy=None):
