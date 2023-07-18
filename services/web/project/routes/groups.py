@@ -239,7 +239,7 @@ def delete(group_id: int):
     if not data:
         return jsonify(error='Missing JSON data'), 400
     
-    # Comprobacion de existencia y autoridad del usuario indicado
+    # Comprobacion de existencia y autoridad del usuario profesor
     teacher_id_str = data['teacher_id']
     if not teacher_id_str:
         return jsonify(error='teacher_id attribute cannot be null'), 400
