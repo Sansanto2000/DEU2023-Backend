@@ -21,7 +21,8 @@ class Schedule(db.Model):
     endingtime = db.Column(db.Time, nullable=False)
     
     # Llave foranea para que un grupo conosca sus schedules
-    schedule_id: str = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
+    group_id: str = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
+    group = db.relationship('Group', back_populates='schedules')
     
     # A cada Schedule le corresponde un Training
     #training = relationship('User', secondary='groups_users', back_populates='groups')
@@ -41,7 +42,7 @@ class Schedule(db.Model):
             'day': self.day.value,
             'starttime': str(self.starttime),
             'endingtime': str(self.endingtime),
-            'training_id': self.training_id
+            'group_id': self.group_id
         }
     
     
