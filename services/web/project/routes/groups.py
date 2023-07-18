@@ -4,6 +4,7 @@ from project import db
 from project.models.User import User
 from project.models.Group import Group
 from project.models.Schedule import Schedule
+from project.models.Training import Training
 
 from datetime import datetime
 
@@ -76,12 +77,14 @@ def check_schedul_dict(schema: dict):
     except ValueError:
         return False, 'Invalid endingtime. Valid format is: %H:%M:%S'
 
-    training = schema['training']
-    # if not training:
-    #     return False, 'training attribute cannot be null'
+    training_id_str = schema['training_id'] # Retocar por Training Id
+    training = None
+    if training_id_str:
+        training = Training.query.filter_by(id=training_id_str).first()
+        if not training:
+            return False, f'No training for the training_id={training_id_str}'
 
     return True, Schedule(day=day, starttime=starttime, endingtime=endingtime, training=training)
-    
 
 @groups_api.route('/create', methods=['POST'])
 def create():
@@ -142,6 +145,7 @@ def create():
                 return jsonify(error=f'Invalid schedules\'s item. {r2}'), 400               
     else:
         return jsonify(error='Invalid schedules. Schedules must be a list.'), 400
+    
     # Creacion del Grupo
     group = Group(name=name, privacy=privacy, teacher=teacher, description=description, difficulty=difficulty, capacity=capacity, schedules=schedules)
     
