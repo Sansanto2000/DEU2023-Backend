@@ -42,7 +42,8 @@ class Schedule(db.Model):
             'day': self.day.value,
             'starttime': str(self.starttime),
             'endingtime': str(self.endingtime),
-            'group_id': self.group_id
+            'group_id': self.group_id,
+            'training_id': self.training_id
         }
     
     
