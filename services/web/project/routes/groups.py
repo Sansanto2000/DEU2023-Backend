@@ -89,7 +89,6 @@ def create():
     data = request.get_json()
     if not data:
         return jsonify(error='Missing JSON data'), 400
-    name: str = db.Column(db.String(128), nullable=False)
 
     teacher_id_str = data['teacher_id']
     if not teacher_id_str:
@@ -163,7 +162,6 @@ def addUser(group_id: int):
     data = request.get_json()
     if not data:
         return jsonify(error='Missing JSON data'), 400
-    name: str = db.Column(db.String(128), nullable=False)
 
     # Comprobacion de existencia del grupo
     group: Group = Group.query.filter_by(id=group_id).first()
@@ -204,7 +202,6 @@ def removeUser(group_id: int):
     data = request.get_json()
     if not data:
         return jsonify(error='Missing JSON data'), 400
-    name: str = db.Column(db.String(128), nullable=False)
     
     user_id_str = data['user_id']
     if not user_id_str:
@@ -241,7 +238,6 @@ def delete(group_id: int):
     data = request.get_json()
     if not data:
         return jsonify(error='Missing JSON data'), 400
-    name: str = db.Column(db.String(128), nullable=False)
     
     # Comprobacion de existencia y autoridad del usuario indicado
     teacher_id_str = data['teacher_id']
