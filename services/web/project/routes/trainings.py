@@ -40,8 +40,7 @@ def check_excercise_dict(schema: dict):
     except ValueError:
         return False, 'Invalid duration. This has to be a float'
 
-    return True, Exercise(name=name, description=description, speed=speed, heart_rate=heart_rate, duration=duration)
-    
+    return True, Exercise(name=name, description=description, speed=speed, heart_rate=heart_rate, duration=duration)    
 
 @trainings_api.route('/<int:training_id>', methods=['GET'])
 def get(training_id: int):
@@ -88,3 +87,76 @@ def create():
     db.session.commit()
     
     return jsonify(training.to_dict()), 201
+
+@trainings_api.route('/<int:training_id>/addExercise', methods=['PUT'])
+def addExercise(training_id: int):
+    # Endpoint para agregar un ejercicio a un entrenamiento determinado
+    # Este espera varios parametros, uno por url y los demas por json:
+    # # training_id: int <- por url, id del Training objetivo de la nueva incorporacion
+    # # name: dict <- por json, nombre del ejercicio a agregar
+    # # description: dict <- por json, descripcion del ejercicio a agregar
+    # # speed: dict <- por json, speed del ejercicio a agregar
+    # # heart_rate: dict <- por json, heart_rate del ejercicio a agregar
+    # # duration: dict <- por json, duracion del ejercicio a agregar
+    
+    # Comprobacion de existencia del Training
+    training: Training = Training.query.filter_by(id=training_id).first()
+    if not training:
+        return jsonify(error='No training for the given training_id'), 404
+    
+    # Obtencion de datos json y creacion del excercise
+    data = request.get_json()
+    if not data:
+        return jsonify(error='Missing JSON data'), 400
+    
+    r1, r2 = check_excercise_dict(data)
+    if r1:
+        exercise: Exercise = r2
+    else:
+        return jsonify(error=f'Invalid exercises\'s item. {r2}'), 400    
+    
+    # Añadir Exercise creado al Training
+    training.add_exercise(exercise=exercise)
+    
+    # Subida de los cambios a la db
+    db.session.commit()
+
+    return '', 204
+
+@trainings_api.route('/<int:training_id>/removeExercise', methods=['PUT'])
+def removeExercise(training_id: int):
+    # Endpoint para quitar un ejercicio a un entrenamiento determinado
+    # Este espera 2 parametros, uno por url y otro por json:
+    # # training_id: int <- por url, id del Training objetivo del desenlazado
+    # # exercise_id: int <- id del ejercicio que se pretende borrar
+    
+    # Comprobacion de existencia del Training
+    training: Training = Training.query.filter_by(id=training_id).first()
+    if not training:
+        return jsonify(error='No training for the given training_id'), 404
+    
+    # Obtencion de datos json
+    data = request.get_json()
+    if not data:
+        return jsonify(error='Missing JSON data'), 400
+    
+    exercise_id_str = data['exercise_id']
+    if not exercise_id_str:
+        return jsonify(error='exercise_id attribute cannot be null'), 400
+    if not isinstance(exercise_id_str, int):
+        return jsonify(error='Invalid exercise_id. exercise_id must be an integer value.'), 400
+    exercise_id = int(exercise_id_str)
+    exercise: Exercise = Exercise.query.filter_by(id=exercise_id).first()
+    if not exercise:
+        return jsonify(error='Invalid exercise_id. The given id does not correspond to any exercise'), 400
+    elif not exercise in training.exercises:
+        return jsonify(error='Invalid exercise_id. The given exercise was not in the exercises list of the given Training'), 400
+    
+    # Añadir usuario al grupo
+    training.remove_exercise(exercise=exercise)
+    db.session.delete(exercise)
+    
+    # Subida de los cambios a la db
+    db.session.commit()
+
+    return '', 204
