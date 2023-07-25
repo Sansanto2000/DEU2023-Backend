@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 
 from project import db
+from project.models.User import User
 from project.models.Exercise import Exercise
 from project.models.Training import Training
 
@@ -67,6 +68,19 @@ def create():
     if not description:
         return jsonify(error='description attribute cannot be null'), 400
     
+    teacher_id_str = data['teacher_id']
+    if not teacher_id_str:
+        return jsonify(error='teacher_id attribute cannot be null'), 400
+    if not isinstance(teacher_id_str, int):
+        return jsonify(error='Invalid teacher_id. teacher_id must be an integer value.'), 400
+    teacher_id = int(teacher_id_str)
+    teacher: User = User.query.filter_by(id=teacher_id).first()
+    if not teacher:
+        return jsonify(error='Invalid teacher_id. The given id does not correspond to any user'), 400
+    if teacher.role != User.Role.TEACHER:
+        return jsonify(error=f'Invalid teacher_id. The given id belongs to a User who has the {User.Role.STUDENT} role, not {User.Role.TEACHER}.'), 400
+    
+    
     exercises_str = data['exercises']
     exercises = []
     if isinstance(exercises_str, list):
@@ -80,7 +94,7 @@ def create():
         return jsonify(error='Invalid exercises. exercises must be a list.'), 400
     
     # Creacion del Training
-    training = Training(name=name, description=description, exercises=exercises)
+    training = Training(name=name, description=description, teacher_id=teacher_id, exercises=exercises)
     
     # Generacion y agregado del training y sus exercises en la DB
     db.session.add(training)

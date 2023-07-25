@@ -23,21 +23,6 @@ def create_db():
 @cli.command("seed_db")
 def seed_db():
     
-    # Creacion de entrenamientos cada cual con sus respectivos ejercicios
-    exercises = [
-        Exercise(name="curl de biceps", description= "...", speed= 2.0, heart_rate= 90.0, duration= 30.0),
-        Exercise(name="flexiones", description= "...", speed= 4.0, heart_rate= 90.0, duration= 30.0),
-        Exercise(name="bicicleta", description= "...", speed= 7.0, heart_rate= 90.0, duration= 100.0)]
-    training_arms = Training(name="Brazos", description="Entrenamiento de brazos", exercises=exercises)
-    exercises = [
-        Exercise(name="sentadillas", description= "...", speed= 3.0, heart_rate= 120.0, duration= 30.0),
-        Exercise(name="bicicleta", description= "...", speed= 7.0, heart_rate= 90.0, duration= 400.0)]
-    training_legs = Training(name="Piernas", description="Entrenamiento de piernas", exercises=exercises)
-    exercises = [
-        Exercise(name="abdominales", description= "...", speed= 3.0, heart_rate= 120.0, duration= 30.0),
-        Exercise(name="bicicleta", description= "...", speed= 7.0, heart_rate= 90.0, duration= 300.0)]
-    training_core = Training(name="Core", description="Entrenamiento de core", exercises=exercises)
-    
     # Creacion de usuarios
     user1 = User(username='carlos', password='zantana', role=User.Role.TEACHER, gender=User.Gender.MALE, age=75)
     db.session.add(user1)
@@ -47,6 +32,23 @@ def seed_db():
     db.session.add(user3)
     user4 = User(username='dua', password='lipa', role=User.Role.STUDENT, gender=User.Gender.FEMALE, height=1.73, age=27)
     db.session.add(user4)
+    
+    db.session.commit()
+    
+    # Creacion de entrenamientos cada cual con sus respectivos ejercicios
+    exercises = [
+        Exercise(name="curl de biceps", description= "...", speed= 2.0, heart_rate= 90.0, duration= 30.0),
+        Exercise(name="flexiones", description= "...", speed= 4.0, heart_rate= 90.0, duration= 30.0),
+        Exercise(name="bicicleta", description= "...", speed= 7.0, heart_rate= 90.0, duration= 100.0)]
+    training_arms = Training(name="Brazos", description="Entrenamiento de brazos", teacher_id=user1.id, exercises=exercises)
+    exercises = [
+        Exercise(name="sentadillas", description= "...", speed= 3.0, heart_rate= 120.0, duration= 30.0),
+        Exercise(name="bicicleta", description= "...", speed= 7.0, heart_rate= 90.0, duration= 400.0)]
+    training_legs = Training(name="Piernas", description="Entrenamiento de piernas", teacher_id=user2.id, exercises=exercises)
+    exercises = [
+        Exercise(name="abdominales", description= "...", speed= 3.0, heart_rate= 120.0, duration= 30.0),
+        Exercise(name="bicicleta", description= "...", speed= 7.0, heart_rate= 90.0, duration= 300.0)]
+    training_core = Training(name="Core", description="Entrenamiento de core", teacher_id=user2.id, exercises=exercises)
 
     # Creacion de grupos
     schedules = [
