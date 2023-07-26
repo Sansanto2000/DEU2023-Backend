@@ -160,3 +160,10 @@ def removeExercise(training_id: int):
     db.session.commit()
 
     return '', 204
+
+@trainings_api.route('/list', methods=['GET'])
+def getlist():
+    trainings = Training.query.all()
+    return jsonify([training.to_dict() for training in trainings]), 200
+
+
