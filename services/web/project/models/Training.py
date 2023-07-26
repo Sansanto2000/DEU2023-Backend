@@ -10,10 +10,14 @@ class Training(db.Model):
     description: str = db.Column(db.String(512), nullable=True)
     
     exercises = db.relationship("Exercise", cascade="all, delete-orphan")
+    
+    # Claves Foraneas
+    teacher_id: str = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    def __init__(self, name: str, description: str, exercises = []):
+    def __init__(self, name: str, description: str, teacher_id: int, exercises = []):
         self.name = name
         self.description = description
+        self.teacher_id = teacher_id
         self.exercises = exercises
     
     def to_dict(self):
@@ -21,6 +25,7 @@ class Training(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
+            'teacher_id': self.teacher_id,
             'exercises': [exercise.to_dict() for exercise in self.exercises],
         }
         
