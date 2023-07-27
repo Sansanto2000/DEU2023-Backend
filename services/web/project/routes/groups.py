@@ -5,6 +5,7 @@ from project.models.User import User
 from project.models.Group import Group
 from project.models.Schedule import Schedule
 from project.models.Training import Training
+from project.models.Invitation import Invitation
 
 from datetime import datetime
 
@@ -380,3 +381,52 @@ def removeSchedule(group_id: int):
     db.session.commit()
 
     return '', 204
+
+@groups_api.route('/<int:group_id>/generateInvitationForUser/<int:destination_user_id>', methods=['POST'])
+def generateInvitationForUser(group_id: int, destination_user_id: int):
+    # Endpoint para generar una invitacion al grupo a un usuario:
+    # # group_id: int <- id del grupo objetivo del desenlazado
+    # # destination_user_id: int <- id del Schedule que se pretende agregar
+    # # teacher_id: int <- id del usuario profesor del del grupo
+    
+    # Comprobacion de existencia del grupo
+    group: Group = Group.query.filter_by(id=group_id).first()
+    if not group:
+        return jsonify(error='No group for the given group_id'), 404
+    
+    # Comprobacion de existencia del usuario
+    destination_user: User = User.query.filter_by(id=destination_user_id).first()
+    if not destination_user:
+        return jsonify(error='No user for the given destination_user_id'), 404
+    if destination_user in group.users:
+        return jsonify(error='The specified user is already part of the specified group'), 404
+    
+    # Obtencion de datos json
+    data = request.get_json()
+    if not data:
+        return jsonify(error='Missing JSON data'), 400
+    
+    teacher_id_str = data['teacher_id']
+    if not teacher_id_str:
+        return jsonify(error='teacher_id attribute cannot be null'), 400
+    if not isinstance(teacher_id_str, int):
+        return jsonify(error='Invalid teacher_id. teacher_id must be an integer value.'), 400
+    teacher_id = int(teacher_id_str)
+    teacher: User = User.query.filter_by(id=teacher_id, role=User.Role.TEACHER).first()
+    if not teacher:
+        return jsonify(error='Invalid teacher_id. The given id does not correspond to any teacher'), 400
+    elif group.teacher_id != teacher_id:
+        return jsonify(error='Invalid teacher_id. The given teacher_id does not correspond to the teacher of the group in question'), 400
+    
+    # Comprobacion de que no existen invitaciones identicas previamente creadas
+    if Invitation.query.filter_by(id_group=group.id, id_user=destination_user.id).first():
+        return jsonify(error='An invitation already exists for the indicated pair (group, user)'), 400
+    
+    # Creacion de la invitacion
+    invitation: Invitation = Invitation(group=group, user=destination_user)
+    
+    # Generacion y agregado de la invitacion en la DB
+    db.session.add(invitation)
+    db.session.commit()
+
+    return jsonify(invitation.to_dict()), 201
