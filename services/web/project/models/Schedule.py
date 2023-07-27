@@ -1,7 +1,9 @@
 from enum import Enum
 
 from project import db
+from project.models.User import User
 from project.models.Training import Training
+from project.models.RecordOfMade import RecordOfMade
 
 class Schedule(db.Model):
     __tablename__ = "schedules"
@@ -25,9 +27,11 @@ class Schedule(db.Model):
     group = db.relationship('Group', back_populates='schedules')
     
     # A cada Schedule le corresponde un Training
-    #training = relationship('User', secondary='groups_users', back_populates='groups')
     training_id = db.Column(db.Integer, db.ForeignKey('trainings.id'), nullable=True)
     training = db.relationship(Training, uselist=False)
+    
+    # Listado de veces que se realizo el schedule y su datatime
+    realized_list = db.relationship("RecordOfMade", cascade="all, delete-orphan", back_populates='schedule')
     
     def __init__(self, day: Day, starttime, endingtime, training = None):
     #def __init__(self, day: Day, starttime, endingtime):
@@ -35,6 +39,7 @@ class Schedule(db.Model):
         self.starttime = starttime
         self.endingtime = endingtime
         self.training = training
+        self.realized_list = []
     
     def to_dict(self):
         return {
