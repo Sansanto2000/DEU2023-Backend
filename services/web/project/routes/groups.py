@@ -419,8 +419,8 @@ def generateInvitationForUser(group_id: int, destination_user_id: int):
         return jsonify(error='Invalid teacher_id. The given teacher_id does not correspond to the teacher of the group in question'), 400
     
     # Comprobacion de que no existen invitaciones identicas previamente creadas
-    if Invitation.query.filter_by(id_group=group.id, id_user=destination_user.id).first():
-        return jsonify(error='An invitation already exists for the indicated pair (group, user)'), 400
+    if Invitation.query.filter_by(id_group=group.id, id_user=destination_user.id, accepted=False).first():
+        return jsonify(error='An invitation without accepting already exists for the indicated pair (group, user)'), 400
     
     # Creacion de la invitacion
     invitation: Invitation = Invitation(group=group, user=destination_user)

@@ -2,17 +2,53 @@ from flask import Blueprint, request, jsonify
 
 from project import db
 from project.models.User import User
+from project.models.Invitation import Invitation
 
 users_api = Blueprint('users', __name__)
 
 @users_api.route('/<int:user_id>', methods=['GET'])
 def get(user_id: int):
     # Comprobacion existencia del usuario en la DB
-    user = User.query.filter_by(id=user_id).first()
+    user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='No user for the given id'), 404
     
     return jsonify(user.to_dict()), 200
+
+@users_api.route('/<int:user_id>/invitations', methods=['GET'])
+def getInvitations(user_id: int):
+    # Comprobacion existencia del usuario en la DB
+    user: User = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify(error='No user for the given id'), 404
+    
+    invitations: list = Invitation.query.filter_by(id_user=user.id).all()
+    data = [invitation.to_dict() for invitation in invitations]
+    return jsonify(data), 200
+
+@users_api.route('/<int:user_id>/invitation/<int:invitation_id>/accept', methods=['PUT'])
+def acceptInvitation(user_id: int, invitation_id: int):
+    # Comprobacion existencia del usuario en la DB
+    user: User = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify(error='No user for the given id'), 404
+    
+    # Comprobacion existencia de la invitacion en la DB
+    invitation: Invitation = Invitation.query.filter_by(id=invitation_id).first()
+    if not invitation:
+        return jsonify(error='No invitation for the given id'), 404
+    elif invitation.id_user != user.id:
+        return jsonify(error='The indicated invitation does not belong to the specified user'), 404
+    elif invitation.accepted:
+        return jsonify(error='The indicated invitation has already been accepted previously'), 404
+    
+    # Aceptacion de la invitacion
+    invitation.accept()
+    
+    # Actualizacion de los cambios en la DB
+    db.session.commit()
+    
+    return jsonify(invitation.to_dict()), 200
 
 @users_api.route('/update/<int:user_id>', methods=['PUT'])
 def update(user_id: int):
