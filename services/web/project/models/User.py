@@ -1,10 +1,10 @@
 from enum import Enum
+from datetime import datetime, timedelta
 
 from project import db
 from project.models.Group_User import groups_users
 
 from sqlalchemy.orm import relationship
-
 
 class User(db.Model):
     __tablename__ = "users"
@@ -28,6 +28,9 @@ class User(db.Model):
     age: int = db.Column(db.Integer, nullable=True)
     groups = relationship('Group', secondary='groups_users', back_populates='users')
     my_groups = relationship("Group", back_populates='teacher')
+    
+    # Lista de schedules que el usuario realizo
+    schedules_realized_list = relationship('RecordOfMade', cascade="all, delete-orphan", back_populates='user')
 
     def __init__(self, username: str, password: str, role: Role, gender: Gender = None, weight: float = None, height: float = None, age: int = None):
         self.username = username
@@ -57,3 +60,8 @@ class User(db.Model):
             'id': self.id,
             'username': self.username
         }
+        
+    def getCompletedSchedulesId(self, days_lapse: int) -> list: 
+        final_set: set = set(recordofmade.schedule.id for recordofmade in self.schedules_realized_list
+                               if ((datetime.now() - recordofmade.realized_at) < timedelta(days=days_lapse)))
+        return list(final_set)
