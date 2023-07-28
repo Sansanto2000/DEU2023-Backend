@@ -52,6 +52,30 @@ def acceptInvitation(user_id: int, invitation_id: int):
     
     return jsonify(invitation.to_dict()), 200
 
+@users_api.route('/<int:user_id>/invitation/<int:invitation_id>/decline', methods=['PUT'])
+def declineInvitation(user_id: int, invitation_id: int):
+    # Comprobacion existencia del usuario en la DB
+    user: User = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify(error='No user for the given id'), 404
+    
+    # Comprobacion existencia de la invitacion en la DB
+    invitation: Invitation = Invitation.query.filter_by(id=invitation_id).first()
+    if not invitation:
+        return jsonify(error='No invitation for the given id'), 404
+    elif invitation.id_user != user.id:
+        return jsonify(error='The indicated invitation does not belong to the specified user'), 404
+    elif invitation.accepted:
+        return jsonify(error='The indicated invitation has already been accepted previously'), 404
+    
+    # Borrar invitacion de la DB
+    db.session.delete(invitation)
+    
+    # Actualizacion de los cambios en la DB
+    db.session.commit()
+    
+    return jsonify(invitation.to_dict()), 204
+
 @users_api.route('/update/<int:user_id>', methods=['PUT'])
 def update(user_id: int):
     # Comprobacion existencia del usuario en la DB
