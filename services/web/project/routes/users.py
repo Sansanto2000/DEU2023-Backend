@@ -203,6 +203,37 @@ def getCompletedSchedulesId(user_id: int):
     
     return jsonify({"ids_of_realized_schedules": ids_list}), 200
 
+@users_api.route('/<int:user_id>/schedules/completed/allData', methods=['GET'])
+def getCompletedSchedules(user_id: int):
+    # Devuelve un listado con todos datos de los schedules completados por el usuario dado un lapso de tiempo
+    # # user_id: int <- url, id del grupo objetivo del desenlazado
+    # # days_lapse: int <- json, cantidad de dias desde la realizacion para considerar un schedule como realizado
+    
+    # Comprobacion existencia del usuario en la DB
+    user: User = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify(error='No user for the given id'), 404
+    
+    # Obtencion de datos json
+    data = request.get_json()
+    if not data:
+        return jsonify(error='Missing JSON data'), 400
+    
+    days_lapse_str = data['days_lapse']
+    if not days_lapse_str:
+        return jsonify(error='days_lapse attribute cannot be null'), 400
+    elif not isinstance(days_lapse_str, int):
+        return jsonify(error='Invalid days_lapse. days_lapse must be an integer value.'), 400
+    days_lapse: int = int(days_lapse_str)
+    if days_lapse < 0:
+        return jsonify(error='Invalid days_lapse. days_lapse must be greater than or equal to 0'), 400
+    
+    # Obtiene el listado de los id de los schedules que el usuario realizo en el plazo de tiempo indicado
+    recordOfMade_list = user.getCompletedSchedulesRegister(days_lapse=days_lapse)
+    recordOfMade_list = [recordofmade.to_dict() for recordofmade in recordOfMade_list]
+    
+    return jsonify({"record_of_realized_schedules": recordOfMade_list}), 200
+
 @users_api.route('/<int:user_id>/schedule/<int:schedule_id>/complete', methods=['PUT'])
 def completeSchedule(user_id: int, schedule_id: int):
     # Comprobacion existencia del usuario en la DB

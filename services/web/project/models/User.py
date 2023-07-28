@@ -65,3 +65,8 @@ class User(db.Model):
         final_set: set = set(recordofmade.schedule.id for recordofmade in self.schedules_realized_list
                                if ((datetime.now() - recordofmade.realized_at) < timedelta(days=days_lapse)))
         return list(final_set)
+    
+    def getCompletedSchedulesRegister(self, days_lapse: int) -> list: 
+        final_set: set = set(recordofmade for recordofmade in self.schedules_realized_list
+                               if ((datetime.now() - recordofmade.realized_at) < timedelta(days=days_lapse)))
+        return list(final_set)
