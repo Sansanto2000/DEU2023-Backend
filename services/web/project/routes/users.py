@@ -141,3 +141,12 @@ def update(user_id: int):
     db.session.commit()
 
     return jsonify(user.to_dict()), 200
+
+
+
+@users_api.route('/list', methods=['GET'])
+def getlist():
+    users = User.query.all()
+    return jsonify([user.to_dict() for user in users]), 200
+
+
