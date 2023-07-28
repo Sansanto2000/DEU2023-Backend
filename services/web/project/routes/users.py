@@ -168,6 +168,16 @@ def update(user_id: int):
 
     return jsonify(user.to_dict()), 200
 
+<<<<<<< HEAD
+
+
+@users_api.route('/list', methods=['GET'])
+def getlist():
+    users = User.query.all()
+    return jsonify([user.to_dict() for user in users]), 200
+
+
+=======
 @users_api.route('/<int:user_id>/schedules/completed', methods=['GET'])
 def getCompletedSchedulesId(user_id: int):
     # Devuelve un listado con todos los schedules completados por el usuario dado un lapso de tiempo
@@ -220,3 +230,4 @@ def completeSchedule(user_id: int, schedule_id: int):
     db.session.commit()
     
     return jsonify(recordofmade.to_dict()), 200
+>>>>>>> 8dfdf0a4927c18ac09d88e5db8cee6207c242678
