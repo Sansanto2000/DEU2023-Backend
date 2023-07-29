@@ -177,22 +177,18 @@ def getlist():
 def getCompletedSchedulesId(user_id: int):
     # Devuelve un listado con todos los schedules completados por el usuario dado un lapso de tiempo
     # # user_id: int <- url, id del grupo objetivo del desenlazado
-    # # days_lapse: int <- json, cantidad de dias desde la realizacion para considerar un schedule como realizado
+    # # days_lapse: int <- param, cantidad de dias desde la realizacion para considerar un schedule como realizado
     
     # Comprobacion existencia del usuario en la DB
     user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='No user for the given id'), 404
     
-    # Obtencion de datos json
-    data = request.get_json()
-    if not data:
-        return jsonify(error='Missing JSON data'), 400
-    
-    days_lapse_str = data['days_lapse']
+    # Obtencion de datos de parametro
+    days_lapse_str = request.args.get('days_lapse')  
     if not days_lapse_str:
         return jsonify(error='days_lapse attribute cannot be null'), 400
-    elif not isinstance(days_lapse_str, int):
+    elif not days_lapse_str.isdigit():
         return jsonify(error='Invalid days_lapse. days_lapse must be an integer value.'), 400
     days_lapse: int = int(days_lapse_str)
     if days_lapse < 0:
@@ -207,22 +203,18 @@ def getCompletedSchedulesId(user_id: int):
 def getCompletedSchedules(user_id: int):
     # Devuelve un listado con todos datos de los schedules completados por el usuario dado un lapso de tiempo
     # # user_id: int <- url, id del grupo objetivo del desenlazado
-    # # days_lapse: int <- json, cantidad de dias desde la realizacion para considerar un schedule como realizado
+    # # days_lapse: int <- param, cantidad de dias desde la realizacion para considerar un schedule como realizado
     
     # Comprobacion existencia del usuario en la DB
     user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='No user for the given id'), 404
     
-    # Obtencion de datos json
-    data = request.get_json()
-    if not data:
-        return jsonify(error='Missing JSON data'), 400
-    
-    days_lapse_str = data['days_lapse']
+    # Obtencion de datos de parametro
+    days_lapse_str = request.args.get('days_lapse')  
     if not days_lapse_str:
         return jsonify(error='days_lapse attribute cannot be null'), 400
-    elif not isinstance(days_lapse_str, int):
+    elif not days_lapse_str.isdigit():
         return jsonify(error='Invalid days_lapse. days_lapse must be an integer value.'), 400
     days_lapse: int = int(days_lapse_str)
     if days_lapse < 0:
