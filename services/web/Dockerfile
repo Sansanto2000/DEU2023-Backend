@@ -36,4 +36,4 @@ EXPOSE 5000
 # run entrypoint.sh
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
 
-CMD "python manage.py run -h 0.0.0.0"
+CMD ["python", "manage.py", "run", "-h", "0.0.0.0"]
