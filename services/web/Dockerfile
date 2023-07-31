@@ -4,6 +4,9 @@ FROM python:3.11.3-slim-buster
 # set work directory
 WORKDIR /usr/src/app
 
+# Generar los certificados autofirmados
+# RUN openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -subj '/CN=localhost' -keyout key.pem -out cert.pem
+
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
