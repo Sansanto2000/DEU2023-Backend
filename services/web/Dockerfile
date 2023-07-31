@@ -11,6 +11,15 @@ WORKDIR /usr/src/app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# Variables de configuracion de conexion a PostgresDB
+ENV FLASK_APP=project/__init__.py
+ENV FLASK_DEBUG=1
+ENV DATABASE_URL=postgresql://hello_flask:hello_flask@db:5432/hello_flask_dev
+ENV SQL_HOST=db
+ENV SQL_PORT=5432
+ENV DATABASE=postgres
+ENV APP_FOLDER=/usr/src/app
+
 # install system dependencies
 RUN apt-get update && apt-get install -y netcat
 
