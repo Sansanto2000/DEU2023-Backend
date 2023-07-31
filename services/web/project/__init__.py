@@ -9,7 +9,7 @@ from flask import (
 
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
-from flask_cors import CORS 
+from flask_cors import CORS
 
 
 app = Flask(__name__)
@@ -33,7 +33,6 @@ app.register_blueprint(trainings_api, url_prefix='/trainings')
 
 from project.routes.schedules import schedules_api
 app.register_blueprint(schedules_api, url_prefix='/schedules')
-
 
 
 @app.route("/")

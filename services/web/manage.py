@@ -18,9 +18,10 @@ from datetime import time
 import datetime
 from copy import copy
 
+
 def generate_self_signed_cert(cert_file, key_file):
-    # Generar una clave privada RSA
     from cryptography.hazmat.primitives.asymmetric import rsa
+    # Generar una clave privada RSA
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048,
@@ -45,10 +46,7 @@ def generate_self_signed_cert(cert_file, key_file):
         # El certificado será válido por 365 días
         datetime.datetime.utcnow() + datetime.timedelta(days=365)
     ).add_extension(
-        x509.SubjectAlternativeName([x509.DNSName(u"localhost")]),
-        critical=False
-    # Firma el certificado con la clave privada
-    ).sign(private_key, hashes.SHA256(), default_backend())
+        x509.SubjectAlternativeName([x509.DNSName(u"localhost")]), critical=False).sign(private_key, hashes.SHA256(), default_backend())
 
     # Guardar la clave privada en 'key.pem'
     with open(key_file, "wb") as key_file:
@@ -62,29 +60,31 @@ def generate_self_signed_cert(cert_file, key_file):
     with open(cert_file, "wb") as cert_file:
         cert_file.write(cert.public_bytes(serialization.Encoding.PEM))
 
+
 cert_file = "cert.pem"
 key_file = "key.pem"
 if os.path.exists(cert_file) and os.path.exists(key_file):
     True
-    #print("Los archivos 'cert.pem' y 'key.pem' ya existen.")
+    # print("Los archivos 'cert.pem' y 'key.pem' ya existen.")
 else:
     generate_self_signed_cert(cert_file, key_file)
-    #print(f"Certificado autofirmado generado y guardado en '{cert_file}' y '{key_file}'.")
+    # print(f"Certificado autofirmado generado y guardado en '{cert_file}' y '{key_file}'.")
 context = ssl.SSLContext(ssl.PROTOCOL_TLS)
 context.load_cert_chain(cert_file, key_file)
 
-#cli = FlaskGroup(app)
+cli = FlaskGroup(app)
 
-#@cli.command("create_db")
+
+@cli.command("create_db")
 def create_db():
     db.drop_all()
     db.create_all()
     db.session.commit()
 
 
-#@cli.command("seed_db")
+@cli.command("seed_db")
 def seed_db():
-    
+
     # Creacion de usuarios
     user1 = User(username='carlos', password='zantana', role=User.Role.TEACHER, gender=User.Gender.MALE, age=75)
     db.session.add(user1)
@@ -94,22 +94,22 @@ def seed_db():
     db.session.add(user3)
     user4 = User(username='dua', password='lipa', role=User.Role.STUDENT, gender=User.Gender.FEMALE, height=1.73, age=27)
     db.session.add(user4)
-    
+
     db.session.commit()
-    
+
     # Creacion de entrenamientos cada cual con sus respectivos ejercicios
     exercises = [
-        Exercise(name="curl de biceps", description= "...", speed= 2.0, heart_rate= 90.0, duration= 30.0),
-        Exercise(name="flexiones", description= "...", speed= 4.0, heart_rate= 90.0, duration= 30.0),
-        Exercise(name="bicicleta", description= "...", speed= 7.0, heart_rate= 90.0, duration= 100.0)]
+        Exercise(name="curl de biceps", description="...", speed=2.0, heart_rate=90.0, duration=30.0),
+        Exercise(name="flexiones", description="...", speed=4.0, heart_rate=90.0, duration=30.0),
+        Exercise(name="bicicleta", description="...", speed=7.0, heart_rate=90.0, duration=100.0)]
     training_arms = Training(name="Brazos", description="Entrenamiento de brazos", teacher_id=user1.id, exercises=exercises)
     exercises = [
-        Exercise(name="sentadillas", description= "...", speed= 3.0, heart_rate= 120.0, duration= 30.0),
-        Exercise(name="bicicleta", description= "...", speed= 7.0, heart_rate= 90.0, duration= 400.0)]
+        Exercise(name="sentadillas", description="...", speed=3.0, heart_rate=120.0, duration=30.0),
+        Exercise(name="bicicleta", description="...", speed=7.0, heart_rate=90.0, duration=400.0)]
     training_legs = Training(name="Piernas", description="Entrenamiento de piernas", teacher_id=user2.id, exercises=exercises)
     exercises = [
-        Exercise(name="abdominales", description= "...", speed= 3.0, heart_rate= 120.0, duration= 30.0),
-        Exercise(name="bicicleta", description= "...", speed= 7.0, heart_rate= 90.0, duration= 300.0)]
+        Exercise(name="abdominales", description="...", speed=3.0, heart_rate=120.0, duration=30.0),
+        Exercise(name="bicicleta", description="...", speed=7.0, heart_rate=90.0, duration=300.0)]
     training_core = Training(name="Core", description="Entrenamiento de core", teacher_id=user2.id, exercises=exercises)
 
     # Creacion de grupos
@@ -146,9 +146,9 @@ def seed_db():
 
 
 if __name__ == "__main__":
-    
-    #cli()
-    with app.app_context():
-        create_db()
-        seed_db()
-    app.run(ssl_context=context, host='0.0.0.0', port=5000, debug=True)
+
+    cli()
+    # with app.app_context():
+    #     create_db()
+    #     seed_db()
+    # app.run(ssl_context=context, host='0.0.0.0', port=5000, debug=True)

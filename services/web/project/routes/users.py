@@ -8,14 +8,16 @@ from project.models.RecordOfMade import RecordOfMade
 
 users_api = Blueprint('users', __name__)
 
+
 @users_api.route('/<int:user_id>', methods=['GET'])
 def get(user_id: int):
     # Comprobacion existencia del usuario en la DB
     user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='No user for the given id'), 404
-    
+
     return jsonify(user.to_dict()), 200
+
 
 @users_api.route('/<int:user_id>/invitations', methods=['GET'])
 def getInvitations(user_id: int):
@@ -23,10 +25,11 @@ def getInvitations(user_id: int):
     user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='No user for the given id'), 404
-    
+
     invitations: list = Invitation.query.filter_by(id_user=user.id).all()
     data = [invitation.to_dict() for invitation in invitations]
     return jsonify(data), 200
+
 
 @users_api.route('/<int:user_id>/invitation/<int:invitation_id>/accept', methods=['PUT'])
 def acceptInvitation(user_id: int, invitation_id: int):
@@ -34,7 +37,7 @@ def acceptInvitation(user_id: int, invitation_id: int):
     user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='No user for the given id'), 404
-    
+
     # Comprobacion existencia de la invitacion en la DB
     invitation: Invitation = Invitation.query.filter_by(id=invitation_id).first()
     if not invitation:
@@ -43,14 +46,15 @@ def acceptInvitation(user_id: int, invitation_id: int):
         return jsonify(error='The indicated invitation does not belong to the specified user'), 404
     elif invitation.accepted:
         return jsonify(error='The indicated invitation has already been accepted previously'), 404
-    
+
     # Aceptacion de la invitacion
     invitation.accept()
-    
+
     # Actualizacion de los cambios en la DB
     db.session.commit()
-    
+
     return jsonify(invitation.to_dict()), 200
+
 
 @users_api.route('/<int:user_id>/invitation/<int:invitation_id>/decline', methods=['PUT'])
 def declineInvitation(user_id: int, invitation_id: int):
@@ -58,7 +62,7 @@ def declineInvitation(user_id: int, invitation_id: int):
     user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='No user for the given id'), 404
-    
+
     # Comprobacion existencia de la invitacion en la DB
     invitation: Invitation = Invitation.query.filter_by(id=invitation_id).first()
     if not invitation:
@@ -67,14 +71,15 @@ def declineInvitation(user_id: int, invitation_id: int):
         return jsonify(error='The indicated invitation does not belong to the specified user'), 404
     elif invitation.accepted:
         return jsonify(error='The indicated invitation has already been accepted previously'), 404
-    
+
     # Borrar invitacion de la DB
     db.session.delete(invitation)
-    
+
     # Actualizacion de los cambios en la DB
     db.session.commit()
-    
+
     return jsonify(invitation.to_dict()), 204
+
 
 @users_api.route('/update/<int:user_id>', methods=['PUT'])
 def update(user_id: int):
@@ -82,12 +87,12 @@ def update(user_id: int):
     user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='There is no user for the given id'), 404
-    
+
     # Obtencion de datos json y modificacion de los campos
     data = request.get_json()
     if not data:
         return jsonify(error='Missing JSON data'), 400
-        
+
     try:
         username = data['username']
         if not username:
@@ -162,30 +167,32 @@ def update(user_id: int):
         user.age = age
     except KeyError:
         pass
-    
+
     # Actualizacion de los cambios en la DB
     db.session.commit()
 
     return jsonify(user.to_dict()), 200
+
 
 @users_api.route('/list', methods=['GET'])
 def getlist():
     users = User.query.all()
     return jsonify([user.to_dict() for user in users]), 200
 
+
 @users_api.route('/<int:user_id>/schedules/completed', methods=['GET'])
 def getCompletedSchedulesId(user_id: int):
     # Devuelve un listado con todos los schedules completados por el usuario dado un lapso de tiempo
     # # user_id: int <- url, id del grupo objetivo del desenlazado
     # # days_lapse: int <- param, cantidad de dias desde la realizacion para considerar un schedule como realizado
-    
+
     # Comprobacion existencia del usuario en la DB
     user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='No user for the given id'), 404
-    
+
     # Obtencion de datos de parametro
-    days_lapse_str = request.args.get('days_lapse')  
+    days_lapse_str = request.args.get('days_lapse')
     if not days_lapse_str:
         return jsonify(error='days_lapse attribute cannot be null'), 400
     elif not days_lapse_str.isdigit():
@@ -193,25 +200,26 @@ def getCompletedSchedulesId(user_id: int):
     days_lapse: int = int(days_lapse_str)
     if days_lapse < 0:
         return jsonify(error='Invalid days_lapse. days_lapse must be greater than or equal to 0'), 400
-    
+
     # Obtiene el listado de los id de los schedules que el usuario realizo en el plazo de tiempo indicado
     ids_list = user.getCompletedSchedulesId(days_lapse=days_lapse)
-    
+
     return jsonify({"ids_of_realized_schedules": ids_list}), 200
+
 
 @users_api.route('/<int:user_id>/schedules/completed/allData', methods=['GET'])
 def getCompletedSchedules(user_id: int):
     # Devuelve un listado con todos datos de los schedules completados por el usuario dado un lapso de tiempo
     # # user_id: int <- url, id del grupo objetivo del desenlazado
     # # days_lapse: int <- param, cantidad de dias desde la realizacion para considerar un schedule como realizado
-    
+
     # Comprobacion existencia del usuario en la DB
     user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='No user for the given id'), 404
-    
+
     # Obtencion de datos de parametro
-    days_lapse_str = request.args.get('days_lapse')  
+    days_lapse_str = request.args.get('days_lapse')
     if not days_lapse_str:
         return jsonify(error='days_lapse attribute cannot be null'), 400
     elif not days_lapse_str.isdigit():
@@ -219,12 +227,13 @@ def getCompletedSchedules(user_id: int):
     days_lapse: int = int(days_lapse_str)
     if days_lapse < 0:
         return jsonify(error='Invalid days_lapse. days_lapse must be greater than or equal to 0'), 400
-    
+
     # Obtiene el listado de los id de los schedules que el usuario realizo en el plazo de tiempo indicado
     recordOfMade_list = user.getCompletedSchedulesRegister(days_lapse=days_lapse)
     recordOfMade_list = [recordofmade.to_dict() for recordofmade in recordOfMade_list]
-    
+
     return jsonify({"record_of_realized_schedules": recordOfMade_list}), 200
+
 
 @users_api.route('/<int:user_id>/schedule/<int:schedule_id>/complete', methods=['PUT'])
 def completeSchedule(user_id: int, schedule_id: int):
@@ -232,19 +241,19 @@ def completeSchedule(user_id: int, schedule_id: int):
     user: User = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify(error='No user for the given id'), 404
-    
+
     # Comprobacion existencia del schedule en la DB
     schedule: Schedule = Schedule.query.filter_by(id=schedule_id).first()
     if not schedule:
         return jsonify(error='No schedule for the given id'), 404
-    elif not schedule.group in user.groups:
+    elif schedule.group not in user.groups:
         return jsonify(error='The specified schedule does not belong to any group in which the user is subscribed'), 404
-    
+
     # Agregar entrada de realizacion del schedule por parte del usuario
     recordofmade: RecordOfMade = RecordOfMade(user=user, schedule=schedule)
-    
+
     # Actualizacion de los cambios en la DB
     db.session.add(recordofmade)
     db.session.commit()
-    
+
     return jsonify(recordofmade.to_dict()), 200
