@@ -94,6 +94,8 @@ def seed_db():
     db.session.add(user3)
     user4 = User(username='dua', password='lipa', role=User.Role.STUDENT, gender=User.Gender.FEMALE, height=1.73, age=27)
     db.session.add(user4)
+    user5 = User(username='juan', password='mortadela', role=User.Role.STUDENT, gender=User.Gender.MALE, height=1.73, age=22)
+    db.session.add(user5)
 
     db.session.commit()
 
