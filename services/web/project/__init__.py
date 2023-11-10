@@ -18,6 +18,13 @@ CORS(app, origins=['http://localhost:3000/', 'https://clismo.vercel.app/', 'http
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', 'https://clismo.vercel.app/')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+    return response
+
 
 from project.routes.auth import auth_api
 app.register_blueprint(auth_api, url_prefix='/auth')
