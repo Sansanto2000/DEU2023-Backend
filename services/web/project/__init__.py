@@ -12,9 +12,7 @@ from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
 
-app = Flask(__name__)
-CORS(app)
-CORS(app, origins=['https://clismo.vercel.app/'])
+CORS(app, origins=['https://clismo.vercel.app/'], resources={r"/api/*": {"origins": "https://clismo.vercel.app/"}})
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
 
@@ -22,7 +20,7 @@ db = SQLAlchemy(app)
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', 'https://clismo.vercel.app/')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE')
     return response
 
 
