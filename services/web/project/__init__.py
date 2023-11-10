@@ -14,7 +14,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-CORS(app, origins=['http://localhost:3000/', 'https://clismo.vercel.app/'])
+CORS(app, origins=['http://localhost:3000/', 'https://clismo.vercel.app'])
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
 
